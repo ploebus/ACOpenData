@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			h5 {color:green;}
+		</style>
+	</head>
+	<body>
+		<script type='text/javascript'>
+		
+
+		function acListener(){
+			//alert(this.responseText)
+			document.getElementById('results').innerHTML = this.responseText
+			var ssResponse=JSON.parse(this.responseText)
+			console.log(ssResponse)
+			//write table
+		}
+
+		function getAlamedaCountyData(tract){
+			document.getElementById('tract').innerHTML = "Census Tract: " + tract
+			base_url = 'https://data.acgov.org/resource/3536-rcma.json?census_tract='
+			//catch unusual formats
+			lk_tract=''
+			if (tract.slice(4)!= '00'){
+				lk_tract = tract.slice(0,4) + '.' + tract.slice(4)
+			}
+			else {
+				lk_tract = tract.slice(0,4)
+			}
+		
+		req_url = base_url + "'" + lk_tract + "'"
+		//console.log(req_url)
+		var acReq = new XMLHttpRequest();
+				acReq.onload = acListener;
+				acReq.open("get",req_url,true);
+				acReq.send();	
+
+		}
+
+		function reqListener(){
+			var response = JSON.parse(this.responseText)
+			var FIPS = response.Block.FIPS
+			console.log(FIPS)
+			tract = FIPS.slice(5,11);
+			getAlamedaCountyData(tract);
+		}
+
+		function getCensusTract(lat,lng){
+			document.getElementById('coord').innerHTML = "Latitude: " + lat + "   Longitude: " + lng
+			base_url='http://data.fcc.gov/api/block/find?format=json&showall=true'
+			req_url=base_url + "&latitude=" + lat + "&longitude="+lng
+			var myReq = new XMLHttpRequest();
+				myReq.onload = reqListener;
+				myReq.open("get",req_url,true);
+				myReq.send();
+		}
+
+
+		//where you at
+		navigator.geolocation.getCurrentPosition(function(position){
+		getCensusTract(position.coords.latitude,position.coords.longitude)
+		})
+
+		</script>
+		<h3>Example of how to use geolocation and hitting data.acgov.org api!</h3>
+		<h5>Uses the geolocation feature on the browser</h5>
+		<section id='coord'></section>
+		<h5>Uses the FCC API</h5>
+		<section id='tract'></section>
+		<h5>RESULTS OF HITTING SOCRATA - THE SSA ENROLLMENT BY TRACT TABLE:</h5>
+		<div id='results'>
+
+		</div>
+		<div id='map'>
+		</div>
+		<footer>
+		</footer>
+	</body>
+</html>
