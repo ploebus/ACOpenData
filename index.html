@@ -53,6 +53,8 @@
 			var myReq = new XMLHttpRequest();
 				myReq.onload = reqListener;
 				myReq.open("get",req_url,true);
+				myReq.setRequestHeader("Accept","text/plain");
+				myReq.setRequestHeader("Content-Type","text/plain")
 				myReq.send();
 		}
 
